@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ALQUIPC - Sistema de Facturación</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <link rel="stylesheet" href="css/estilos.css">
+</head>
+<body>
+  <main class="app-shell">
+    <header class="app-header">
+      <div class="brand">
+        <span class="brand-icon"><i class="fa-solid fa-laptop-code"></i></span>
+        <div>
+          <h1>ALQUIPC</h1>
+          <p>Facturación profesional de equipos de cómputo</p>
+        </div>
+      </div>
+    </header>
+
+    <section class="dashboard-grid">
+      <article class="card card-form">
+        <div class="card-top">
+          <div>
+            <p class="eyebrow">Formulario</p>
+            <h2>Solicitud de alquiler</h2>
+          </div>
+          <span class="badge"><i class="fa-solid fa-file-signature"></i> ALQUIPC</span>
+        </div>
+
+        <form id="invoiceForm" novalidate>
+          <fieldset>
+            <legend>Datos del cliente</legend>
+            <div class="field-group">
+              <label for="nombre">Nombre del cliente</label>
+              <div class="field-box">
+                <i class="fa-solid fa-user"></i>
+                <input type="text" id="nombre" autocomplete="name" placeholder="Juan Pérez" maxlength="60">
+              </div>
+              <small class="field-error" id="errorNombre"></small>
+            </div>
+
+            <div class="field-group">
+              <label for="idCliente">ID Cliente</label>
+              <div class="field-box">
+                <i class="fa-solid fa-id-card"></i>
+                <input type="text" id="idCliente" autocomplete="off" placeholder="1020304050" inputmode="numeric" maxlength="15">
+              </div>
+              <small class="field-error" id="errorIdCliente"></small>
+            </div>
+
+            <div class="field-row">
+              <div class="field-group">
+                <label for="telefono">Teléfono</label>
+                <div class="field-box">
+                  <i class="fa-solid fa-phone"></i>
+                  <input type="text" id="telefono" autocomplete="tel" placeholder="3001234567" inputmode="numeric" maxlength="15">
+                </div>
+                <small class="field-error" id="errorTelefono"></small>
+              </div>
+
+              <div class="field-group">
+                <label for="email">Correo electrónico</label>
+                <div class="field-box">
+                  <i class="fa-solid fa-envelope"></i>
+                  <input type="email" id="email" autocomplete="email" placeholder="cliente@dominio.com">
+                </div>
+                <small class="field-error" id="errorEmail"></small>
+              </div>
+            </div>
+          </fieldset>
+
+          <fieldset>
+            <legend>Parámetros de alquiler</legend>
+            <div class="field-row">
+              <div class="field-group">
+                <label for="equipos">Cantidad de equipos</label>
+                <div class="field-box">
+                  <i class="fa-solid fa-laptop"></i>
+                  <input type="number" id="equipos" min="2" value="2" step="1">
+                </div>
+                <small class="field-error" id="errorEquipos"></small>
+              </div>
+
+              <div class="field-group">
+                <label for="diasIniciales">Días iniciales</label>
+                <div class="field-box">
+                  <i class="fa-solid fa-calendar-day"></i>
+                  <input type="number" id="diasIniciales" min="1" value="1" step="1">
+                </div>
+                <small class="field-error" id="errorDiasIniciales"></small>
+              </div>
+
+              <div class="field-group">
+                <label for="diasAdicionales">Días adicionales</label>
+                <div class="field-box">
+                  <i class="fa-solid fa-calendar-plus"></i>
+                  <input type="number" id="diasAdicionales" min="0" value="0" step="1">
+                </div>
+                <small class="field-error" id="errorDiasAdicionales"></small>
+              </div>
+            </div>
+
+            <div class="field-group">
+              <label for="tipoAlquiler">Tipo de alquiler</label>
+              <div class="field-box select-box">
+                <i class="fa-solid fa-ship"></i>
+                <select id="tipoAlquiler">
+                  <option value="">Seleccione una opción</option>
+                  <option value="CIUDAD">Dentro de la ciudad (sin recargo)</option>
+                  <option value="FUERA">Fuera de la ciudad (+5% recargo)</option>
+                  <option value="ESTABLECIMIENTO">Dentro del establecimiento (-5% descuento)</option>
+                </select>
+              </div>
+              <small class="field-error" id="errorTipoAlquiler"></small>
+            </div>
+          </fieldset>
+
+          <div class="form-actions">
+            <button type="button" id="btnGenerar" class="btn btn-primary">
+              <i class="fa-solid fa-receipt"></i>
+              Generar factura
+            </button>
+            <button type="button" id="btnLimpiar" class="btn btn-secondary">
+              <i class="fa-solid fa-rotate-left"></i>
+              Nueva factura
+            </button>
+          </div>
+        </form>
+      </article>
+
+      <article class="card card-invoice">
+        <div class="card-top">
+          <div>
+            <p class="eyebrow">Factura</p>
+            <h2>Resumen de la cotización</h2>
+          </div>
+          <span class="badge badge-soft"><i class="fa-solid fa-calculator"></i> Total</span>
+        </div>
+
+        <div id="invoicePlaceholder" class="invoice-placeholder">
+          <i class="fa-solid fa-receipt"></i>
+          <p>Completa el formulario y presiona <strong>Generar factura</strong> para ver el resultado.</p>
+        </div>
+
+        <div id="invoiceContent" class="invoice-content hidden">
+          <div class="alert-success" id="alertSuccess">
+            <i class="fa-solid fa-circle-check"></i>
+            <span>La factura fue generada correctamente y está lista para enviarse por correo electrónico.</span>
+          </div>
+
+          <div class="invoice-panel" id="invoiceBody"></div>
+        </div>
+      </article>
+    </section>
+  </main>
+
+  <script src="js/script.js"></script>
+</body>
+</html>

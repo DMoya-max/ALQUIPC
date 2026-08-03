@@ -1,0 +1,364 @@
+/* Estilos globales */
+:root {
+  --bg: #08101f;
+  --surface: #111b2c;
+  --surface-alt: #17243d;
+  --border: rgba(255, 255, 255, 0.08);
+  --text: #f8fbff;
+  --muted: #94a3b8;
+  --primary: #5b84ff;
+  --primary-soft: rgba(91, 132, 255, 0.16);
+  --success: #28c76f;
+  --success-soft: rgba(40, 199, 111, 0.14);
+  --danger: #f55f5f;
+  --radius: 24px;
+  --shadow: 0 25px 80px rgba(0, 0, 0, 0.16);
+  --transition: 0.25s ease;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  margin: 0;
+  min-height: 100%;
+  font-family: 'Inter', system-ui, sans-serif;
+  background: radial-gradient(circle at top, rgba(91, 132, 255, 0.18), transparent 40%),
+              linear-gradient(180deg, #07111c 0%, #0a1827 100%);
+  color: var(--text);
+}
+
+body {
+  padding: 24px;
+}
+
+button {
+  font: inherit;
+}
+
+.app-shell {
+  max-width: 1180px;
+  margin: 0 auto;
+}
+
+.app-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.brand-icon {
+  width: 56px;
+  height: 56px;
+  display: grid;
+  place-items: center;
+  border-radius: 18px;
+  background: linear-gradient(135deg, rgba(91, 132, 255, 0.3), rgba(35, 120, 255, 0.16));
+  color: var(--primary);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.app-header h1 {
+  font-size: clamp(2rem, 2.4vw, 2.4rem);
+  margin: 0;
+}
+
+.app-header p {
+  margin: 4px 0 0;
+  color: var(--muted);
+  font-size: 0.95rem;
+}
+
+.dashboard-grid {
+  display: grid;
+  gap: 24px;
+  grid-template-columns: 1.1fr 0.9fr;
+}
+
+@media (max-width: 900px) {
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.card {
+  background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02));
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 28px;
+  backdrop-filter: blur(12px);
+}
+
+.card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.eyebrow {
+  margin: 0 0 8px;
+  font-size: 0.8rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--primary);
+}
+
+.card h2 {
+  margin: 0;
+  font-size: 1.55rem;
+  line-height: 1.2;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text);
+  border-radius: 999px;
+  padding: 10px 14px;
+  font-size: 0.9rem;
+}
+
+.badge-soft {
+  background: var(--surface-alt);
+}
+
+.field-row {
+  display: grid;
+  gap: 18px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+@media (max-width: 760px) {
+  .field-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+.field-group {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.field-box {
+  position: relative;
+  display: flex;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  padding: 12px 16px;
+}
+
+.field-box i {
+  color: var(--primary);
+  margin-right: 12px;
+  min-width: 20px;
+  text-align: center;
+}
+
+.field-box input,
+.field-box select {
+  width: 100%;
+  border: none;
+  background: transparent;
+  color: var(--text);
+  font-size: 1rem;
+  outline: none;
+}
+
+.field-box input::placeholder {
+  color: rgba(255, 255, 255, 0.55);
+}
+
+.field-box select {
+  appearance: none;
+}
+
+.field-box:focus-within {
+  border-color: rgba(91, 132, 255, 0.95);
+  box-shadow: 0 0 0 4px rgba(91, 132, 255, 0.12);
+}
+
+.field-group label {
+  color: var(--muted);
+  font-size: 0.95rem;
+}
+
+.field-error {
+  min-height: 20px;
+  color: var(--danger);
+  font-size: 0.85rem;
+}
+
+button.btn {
+  border: none;
+  border-radius: 16px;
+  padding: 14px 24px;
+  cursor: pointer;
+  transition: transform var(--transition), box-shadow var(--transition), background var(--transition), opacity var(--transition);
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  font-weight: 600;
+}
+
+button.btn-primary {
+  background: linear-gradient(135deg, var(--primary), #3f69ff);
+  color: white;
+  box-shadow: 0 18px 40px rgba(91, 132, 255, 0.22);
+}
+
+button.btn-primary:hover {
+  opacity: 0.95;
+}
+
+button.btn-secondary {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--text);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+button.btn-secondary:hover {
+  opacity: 0.94;
+}
+
+button.btn:hover {
+  transform: translateY(-1px);
+}
+
+.form-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-top: 20px;
+}
+
+.invoice-placeholder,
+.invoice-content {
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 28px;
+}
+
+.invoice-placeholder {
+  display: grid;
+  gap: 18px;
+  justify-items: center;
+  text-align: center;
+  color: var(--muted);
+  background: linear-gradient(180deg, rgba(91, 132, 255, 0.08), rgba(255, 255, 255, 0.02));
+}
+
+.invoice-placeholder i {
+  font-size: 3rem;
+  color: var(--primary);
+}
+
+.hidden {
+  display: none !important;
+}
+
+.invoice-placeholder.hidden,
+.invoice-content.hidden {
+  display: none !important;
+}
+
+.alert-success {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: var(--success-soft);
+  color: var(--success);
+  border-radius: 18px;
+  padding: 16px 18px;
+  margin-bottom: 20px;
+}
+
+.invoice-panel {
+  display: grid;
+  gap: 20px;
+  padding: 22px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.02));
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 26px;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.04);
+}
+
+.invoice-header,
+.invoice-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: center;
+}
+
+.invoice-header {
+  padding-bottom: 18px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.invoice-header .label,
+.invoice-row .label {
+  color: var(--muted);
+  font-size: 0.95rem;
+}
+
+.invoice-header .value,
+.invoice-row .value {
+  color: var(--text);
+  font-weight: 600;
+}
+
+.invoice-divider {
+  height: 1px;
+  background: rgba(255, 255, 255, 0.08);
+  margin: 10px 0;
+}
+
+.invoice-row.total {
+  font-size: 1.05rem;
+  font-weight: 700;
+}
+
+.invoice-chip {
+  font-size: 0.85rem;
+  color: var(--text);
+  background: rgba(91, 132, 255, 0.14);
+  padding: 8px 12px;
+  border-radius: 999px;
+}
+
+.card-invoice {
+  min-height: 540px;
+}
+  background: rgba(91, 132, 255, 0.12);
+  border-radius: 999px;
+  padding: 6px 10px;
+}
+
+@media (max-width: 760px) {
+  .card {
+    padding: 22px;
+  }
+
+  .invoice-header,
+  .invoice-row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
