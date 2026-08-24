@@ -198,7 +198,7 @@ button {
   width: 100%;
   border: none;
   background: transparent;
-  color: var(--text);
+  color: #ffffff;
   font-size: 1rem;
   outline: none;
 }
@@ -209,6 +209,14 @@ button {
 
 .field-box select {
   appearance: none;
+  background: rgba(255, 255, 255, 0.04);
+  color: #ffffff;
+  border-radius: 12px;
+}
+
+.field-box select option {
+  background: #111b2c;
+  color: #ffffff;
 }
 
 .field-box:focus-within {
@@ -369,9 +377,13 @@ button.btn:hover {
 .card-invoice {
   min-height: 540px;
 }
+
+.invoice-chip {
+  font-size: 0.85rem;
+  color: var(--text);
   background: rgba(91, 132, 255, 0.12);
   border-radius: 999px;
-  padding: 6px 10px;
+  padding: 8px 12px;
 }
 
 @media (max-width: 760px) {

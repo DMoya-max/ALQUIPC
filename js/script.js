@@ -2,7 +2,9 @@
 const VALOR_DIARIO_POR_EQUIPO = 35000;
 const RECARGO_FUERA_CIUDAD = 0.05;
 const DESCUENTO_ESTABLECIMIENTO = 0.05;
-const DESCUENTO_DIAS_ADICIONALES = 0.02;
+const DESCUENTO_DIAS_ADICIONALES_POR_DIA = 0.02;
+const MAX_DIAS_ADICIONALES = 10;
+const MAX_DESCUENTO_DIAS_ADICIONALES = 0.20;
 
 // Selectores del DOM
 const invoiceForm = document.getElementById('invoiceForm');
@@ -120,6 +122,16 @@ function validarDias() {
   if (!Number.isFinite(valor) || valor < 1) {
     return establecerError(inputDiasIniciales, 'Debe alquilar al menos 1 día.');
   }
+
+  if (valor > 30) {
+    inputDiasIniciales.value = 30;
+  }
+
+  const diasAdicionales = Number(inputDiasAdicionales.value) || 0;
+  if (diasAdicionales > valor) {
+    inputDiasAdicionales.value = valor;
+  }
+
   return limpiarError(inputDiasIniciales);
 }
 
@@ -128,6 +140,16 @@ function validarDiasAdicionales() {
   if (!Number.isFinite(valor) || valor < 0) {
     return establecerError(inputDiasAdicionales, 'Días adicionales no pueden ser negativos.');
   }
+
+  const diasIniciales = Number(inputDiasIniciales.value) || 1;
+  if (valor > diasIniciales) {
+    inputDiasAdicionales.value = diasIniciales;
+  }
+
+  if (valor > MAX_DIAS_ADICIONALES) {
+    inputDiasAdicionales.value = MAX_DIAS_ADICIONALES;
+  }
+
   return limpiarError(inputDiasAdicionales);
 }
 
@@ -177,13 +199,22 @@ function calcularSubtotal(cantidad, dias) {
   return cantidad * dias * VALOR_DIARIO_POR_EQUIPO;
 }
 
-function calcularDiasAdicionales(cantidad, diasAdicionales) {
-  const valorNormal = cantidad * diasAdicionales * VALOR_DIARIO_POR_EQUIPO;
-  const descuento = diasAdicionales > 0 ? valorNormal * DESCUENTO_DIAS_ADICIONALES : 0;
+function calcularDiasAdicionales(cantidad, diasIniciales, diasAdicionales) {
+  const diasAdicionalesAplicados = Math.min(Math.max(diasAdicionales, 0), MAX_DIAS_ADICIONALES);
+  const diasAdicionalesValidos = Math.min(diasAdicionalesAplicados, diasIniciales);
+  const valorInicial = cantidad * diasIniciales * VALOR_DIARIO_POR_EQUIPO;
+  const valorAdicionales = cantidad * diasAdicionalesValidos * VALOR_DIARIO_POR_EQUIPO;
+  const subtotalSinDescuento = valorInicial + valorAdicionales;
+  const descuentoPorcentaje = Math.min(diasAdicionalesValidos * DESCUENTO_DIAS_ADICIONALES_POR_DIA, MAX_DESCUENTO_DIAS_ADICIONALES);
+  const descuento = subtotalSinDescuento * descuentoPorcentaje;
+
   return {
-    valorNormal,
+    valorInicial,
+    valorAdicionales,
+    subtotalSinDescuento,
     descuento,
-    valorFinal: valorNormal - descuento,
+    valorFinal: subtotalSinDescuento - descuento,
+    descuentoPorcentaje,
   };
 }
 
@@ -214,10 +245,10 @@ function generarFactura() {
   const tipoAlquiler = selectTipoAlquiler.value;
 
   const subtotal = calcularSubtotal(cantidadEquipos, diasIniciales);
-  const diasAdicionalesData = calcularDiasAdicionales(cantidadEquipos, diasAdicionales);
-  const incremento = calcularIncrementos(subtotal, tipoAlquiler);
-  const descuentoEstablecimiento = calcularDescuentos(subtotal, tipoAlquiler);
-  const total = calcularTotal(subtotal, diasAdicionalesData.valorFinal, incremento, descuentoEstablecimiento);
+  const diasAdicionalesData = calcularDiasAdicionales(cantidadEquipos, diasIniciales, diasAdicionales);
+  const incremento = calcularIncrementos(diasAdicionalesData.subtotalSinDescuento, tipoAlquiler);
+  const descuentoEstablecimiento = calcularDescuentos(diasAdicionalesData.subtotalSinDescuento, tipoAlquiler);
+  const total = calcularTotal(diasAdicionalesData.subtotalSinDescuento, 0, incremento, descuentoEstablecimiento) - diasAdicionalesData.descuento;
 
   invoiceBody.innerHTML = renderFactura({
     tipoAlquiler,
@@ -236,6 +267,27 @@ function generarFactura() {
 }
 
 function renderFactura(datos) {
+  const descuentoDiasAdicionales = datos.diasAdicionales > 0 ? `
+    <div class="invoice-row">
+      <span class="label">Descuento días adicionales (${(datos.diasAdicionalesData.descuentoPorcentaje * 100).toFixed(0)}%)</span>
+      <span class="value">-${formatearMoneda(datos.diasAdicionalesData.descuento)}</span>
+    </div>
+  ` : '';
+
+  const recargoDomicilio = datos.incremento > 0 ? `
+    <div class="invoice-row">
+      <span class="label">Recargo domicilio (5%)</span>
+      <span class="value">${formatearMoneda(datos.incremento)}</span>
+    </div>
+  ` : '';
+
+  const descuentoEstablecimiento = datos.descuentoEstablecimiento > 0 ? `
+    <div class="invoice-row">
+      <span class="label">Descuento establecimiento (5%)</span>
+      <span class="value">-${formatearMoneda(datos.descuentoEstablecimiento)}</span>
+    </div>
+  ` : '';
+
   return `
     <div class="invoice-header">
       <div>
@@ -245,6 +297,10 @@ function renderFactura(datos) {
       <div class="invoice-chip">Factura ALQUIPC</div>
     </div>
 
+    <div class="invoice-row">
+      <span class="label">Precio por equipo</span>
+      <span class="value">${formatearMoneda(VALOR_DIARIO_POR_EQUIPO)} / día</span>
+    </div>
     <div class="invoice-row">
       <span class="label">Cantidad de equipos</span>
       <span class="value">${datos.cantidadEquipos} unidad(es)</span>
@@ -262,37 +318,12 @@ function renderFactura(datos) {
 
     <div class="invoice-row">
       <span class="label">Subtotal</span>
-      <span class="value">${formatearMoneda(datos.subtotal)}</span>
+      <span class="value">${formatearMoneda(datos.diasAdicionalesData.subtotalSinDescuento)}</span>
     </div>
 
-    ${datos.diasAdicionales > 0 ? `
-      <div class="invoice-row">
-        <span class="label">Valor días adicionales</span>
-        <span class="value">${formatearMoneda(datos.diasAdicionalesData.valorNormal)}</span>
-      </div>
-      <div class="invoice-row">
-        <span class="label">Descuento días adicionales (2%)</span>
-        <span class="value">-${formatearMoneda(datos.diasAdicionalesData.descuento)}</span>
-      </div>
-      <div class="invoice-row">
-        <span class="label">Total días adicionales</span>
-        <span class="value">${formatearMoneda(datos.diasAdicionalesData.valorFinal)}</span>
-      </div>
-    ` : ''}
-
-    ${datos.incremento > 0 ? `
-      <div class="invoice-row">
-        <span class="label">Recargo domicilio (5%)</span>
-        <span class="value">${formatearMoneda(datos.incremento)}</span>
-      </div>
-    ` : ''}
-
-    ${datos.descuentoEstablecimiento > 0 ? `
-      <div class="invoice-row">
-        <span class="label">Descuento establecimiento (5%)</span>
-        <span class="value">-${formatearMoneda(datos.descuentoEstablecimiento)}</span>
-      </div>
-    ` : ''}
+    ${descuentoDiasAdicionales}
+    ${recargoDomicilio}
+    ${descuentoEstablecimiento}
 
     <div class="invoice-divider"></div>
 
